@@ -1,1 +1,60 @@
-<p>register works!</p>
+<div class="d-flex min-vh-100">
+  
+  <div class="col-12 col-md-6 d-flex align-items-center justify-content-center bg-white overflow-auto">
+    <div class="w-100 p-4 p-md-5" style="max-width: 500px;">
+      
+      <div class="mb-4">
+        <h2 class="fw-bold text-dark">Create an Account</h2>
+        <p class="text-muted">Join Utilix manage your bills smartly.</p>
+      </div>
+
+      <div *ngIf="errorMessage" class="alert alert-danger" role="alert">
+        <i class="bi bi-exclamation-circle-fill me-2"></i> {{ errorMessage }}
+      </div>
+      <div *ngIf="successMessage" class="alert alert-success" role="alert">
+        <i class="bi bi-check-circle-fill me-2"></i> {{ successMessage }}
+      </div>
+
+      <form (ngSubmit)="onSubmit()">
+        
+        <div class="mb-3">
+          <label class="form-label fw-medium">Username</label>
+          <input type="text" class="form-control" [(ngModel)]="user.username" name="username" placeholder="Choose a username" required>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label fw-medium">Email Address</label>
+          <input type="email" class="form-control" [(ngModel)]="user.email" name="email" placeholder="name@example.com" required>
+        </div>
+
+        <div class="mb-4">
+          <label class="form-label fw-medium">Password</label>
+          <input type="password" class="form-control" [(ngModel)]="user.password" name="password" placeholder="Create a strong password" required>
+        </div>
+
+        <button type="submit" class="btn btn-primary w-100 py-2 mb-3" [disabled]="isLoading">
+          <span *ngIf="isLoading" class="spinner-border spinner-border-sm me-2"></span>
+          {{ isLoading ? 'Creating Account...' : 'Sign Up' }}
+        </button>
+
+        <div class="text-center text-muted">
+          Already have an account? 
+          <a routerLink="/login" class="text-decoration-none fw-medium" style="color: var(--primary-color)">
+            Sign in here
+          </a>
+        </div>
+      </form>
+
+    </div>
+  </div>
+
+  <div class="d-none d-md-flex col-md-6 align-items-center justify-content-center text-white" 
+       style="background: linear-gradient(135deg, #2563EB 0%, #1D4ED8 100%);"> 
+       <div class="text-center p-5">
+      <h1 class="display-4 fw-bold mb-3">Join the Network</h1>
+      <p class="lead text-white-50">Track usage, pay bills, and get approved faster.</p>
+      <i class="bi bi-house-check-fill" style="font-size: 4rem;"></i>
+    </div>
+  </div>
+
+</div>

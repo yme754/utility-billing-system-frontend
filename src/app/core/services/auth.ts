@@ -7,7 +7,7 @@ import { Router } from '@angular/router';
 @Injectable({
   providedIn: 'root',
 })
-export class Auth {
+export class AuthService {
   private apiUrl = `${environment.apiUrl}/auth`;
   private tokenKey = 'utility_token';
   private userKey = 'utility_user';
