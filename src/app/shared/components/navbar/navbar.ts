@@ -1,11 +1,13 @@
-import { Component } from '@angular/core';
+import { Component, Input } from '@angular/core';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-navbar',
-  imports: [],
-  templateUrl: './navbar.html',
-  styleUrl: './navbar.css',
+  standalone: true,
+  imports: [CommonModule],
+  templateUrl: './navbar.html'
 })
-export class Navbar {
-
+export class NavbarComponent {
+  @Input() pageTitle: string = 'Dashboard';
+  currentDate = new Date();
 }
