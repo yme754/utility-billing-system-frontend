@@ -1,10 +1,11 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { SidebarComponent } from '../../../shared/components/sidebar/sidebar';
 import { NavbarComponent } from '../../../shared/components/navbar/navbar';
 import { ConsumerService } from '../../../core/services/consumer';
 import { AuthService } from '../../../core/services/auth';
+import { finalize } from 'rxjs/operators';
 
 @Component({
   selector: 'app-consumer-dashboard',
@@ -14,8 +15,8 @@ import { AuthService } from '../../../core/services/auth';
 })
 export class ConsumerDashboardComponent implements OnInit {
   isLoading = true;
-  username = '';
-  consumerId = '69552d3386120e3b55e37b4f';
+  username = 'User';  
+  consumerId = '69534e8abc30316ea6aaeb6f';   
   totalDue = 0;
   activeConnections = 0;
   pendingBillsCount = 0;
@@ -23,41 +24,60 @@ export class ConsumerDashboardComponent implements OnInit {
 
   constructor(
     private consumerService: ConsumerService,
-    private authService: AuthService
+    private authService: AuthService,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
     const user = this.authService.getUserFromStorage();
     if (user) {
-      this.username = user.username;
-      this.loadDashboardData();
+        this.username = user.username;
     }
+    setTimeout(() => {
+        this.loadDashboardData();
+    }, 100);
   }
 
   loadDashboardData() {
-    this.consumerService.getMyConnections(this.consumerId).subscribe({
-      next: (connections) => {
-        this.activeConnections = connections.length;        
-        connections.forEach(conn => {
-            this.fetchBillsForConnection(conn.id);
-        });
-        this.isLoading = false;
-      },
-      error: (err) => {
-        console.error('Failed to load connections', err);
-        this.isLoading = false;
-      }
-    });
+    this.consumerService.getMyConnections(this.consumerId)
+      .pipe(
+        finalize(() => { 
+            this.isLoading = false; 
+            this.cdr.detectChanges();
+        }) 
+      )
+      .subscribe({
+        next: (connections) => {
+          if (!connections || !Array.isArray(connections)) {
+              this.activeConnections = 0;
+              return;
+          }
+          this.activeConnections = connections.length;          
+          connections.forEach(conn => {
+              if (conn && conn.id) {
+                  this.fetchBillsForConnection(conn.id);
+              }
+          });
+        },
+        error: (err) => {
+          console.error('Error fetching connections:', err);
+        }
+      });
   }
 
   fetchBillsForConnection(connectionId: string) {
-      this.consumerService.getBillsByConnection(connectionId).subscribe(bills => {
-          const unpaid = bills.filter(b => b.status === 'UNPAID');
-          unpaid.forEach(b => {
-              this.totalDue += b.totalAmount;
-          });
-          this.pendingBillsCount += unpaid.length;          
-          this.recentBills = [...this.recentBills, ...bills].slice(0, 5); 
+      this.consumerService.getBillsByConnection(connectionId).subscribe({
+          next: (bills) => {
+              if (!bills) return;
+              const unpaid = bills.filter(b => b.status === 'UNPAID');
+              unpaid.forEach(b => {
+                  this.totalDue += (b.totalAmount || 0);
+              });
+              this.pendingBillsCount += unpaid.length;              
+              this.recentBills = [...this.recentBills, ...bills].slice(0, 5);
+              this.cdr.detectChanges();
+          },
+          error: (e) => console.error(e)
       });
   }
 }

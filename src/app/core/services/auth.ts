@@ -14,14 +14,14 @@ export class AuthService {
 
   private currentUserSubject = new BehaviorSubject<any>(this.getUserFromStorage());
   public currentUser$ = this.currentUserSubject.asObservable();
-
   constructor(private http: HttpClient, private router: Router) {}
-
   login(credentials: any): Observable<any> {
     return this.http.post(`${this.apiUrl}/login`, credentials).pipe(
       tap((response: any) => {
         if (response.accessToken) {
-            this.setSession(response.accessToken, response.username, response.roles);
+            const username = response.username || credentials.username;
+            const roles = response.roles || ['consumer']; 
+            this.setSession(response.accessToken, username, roles);
         }
       })
     );

@@ -36,8 +36,8 @@ export class LoginComponent {
     this.authService.login(credentials).subscribe({
       next: (res) => {
         this.isLoading = false;
-        const user = this.authService.getUserFromStorage();
-        if (user && user.roles.includes('ROLE_ADMIN')) {
+        const user = this.authService.getUserFromStorage();        
+        if (user && user.roles && user.roles.includes('ROLE_ADMIN')) {
             this.router.navigate(['/admin/dashboard']);
         } else {
             this.router.navigate(['/consumer/dashboard']);
