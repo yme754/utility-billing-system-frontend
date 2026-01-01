@@ -24,8 +24,8 @@ export class MyConnectionsComponent implements OnInit {
   connections: any[] = [];
   consumerId = ''; 
   newConnection = {
-    utilityType: 'ELECTRICITY',
-    tariffCategory: 'Residential'
+    utilityType: '',
+    tariffCategory: ''
   };
 
   constructor(

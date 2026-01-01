@@ -26,6 +26,13 @@ export class ConsumerService {
         headers: this.getHeaders()
     });
   }
+  getPendingConnections(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.apiUrl}/consumers/connections/pending`);
+  }
+  approveConnection(connectionId: string, meterNumber: string): Observable<any> {
+    const payload = { meterNumber: meterNumber };
+    return this.http.put(`${this.apiUrl}/consumers/${connectionId}/approve`, payload);
+  }
   private getHeaders() {
     const token = this.authService.getToken();
     return { 'Authorization': `Bearer ${token}` };
