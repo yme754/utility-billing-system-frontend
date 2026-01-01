@@ -6,6 +6,7 @@ import { NavbarComponent } from '../../../shared/components/navbar/navbar';
 import { ConsumerService } from '../../../core/services/consumer';
 import { AuthService } from '../../../core/services/auth';
 import { switchMap, finalize } from 'rxjs/operators';
+import { Router } from '@angular/router';
 
 declare var bootstrap: any;
 
@@ -13,28 +14,34 @@ declare var bootstrap: any;
   selector: 'app-my-connections',
   standalone: true,
   imports: [CommonModule, SidebarComponent, NavbarComponent, FormsModule],
-  templateUrl: './my-connections.html'
+  templateUrl: './my-connections.html',
+  styleUrl: './my-connections.css'
 })
 export class MyConnectionsComponent implements OnInit {
   isLoading = true;
-  isSubmitting = false;
+  isSubmitting = false;  
+  showSuccessModal = false; 
   connections: any[] = [];
   consumerId = ''; 
   newConnection = {
     utilityType: 'ELECTRICITY',
     tariffCategory: 'Residential'
   };
+
   constructor(
     private consumerService: ConsumerService,
     private authService: AuthService,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private router: Router
   ) {}
+
   ngOnInit(): void {
     const user = this.authService.getUserFromStorage();
     if (user && user.userId) {
         this.loadProfileAndConnections(user.userId);
     }
   }
+
   loadProfileAndConnections(authUserId: string) {
     this.consumerService.getProfile(authUserId).pipe(
         switchMap((profile: any) => {
@@ -55,23 +62,17 @@ export class MyConnectionsComponent implements OnInit {
     });
   }
 
-  loadConnections() {
-    this.consumerService.getMyConnections(this.consumerId)
-      .pipe(
-        finalize(() => {
-          this.isLoading = false;
-          this.cdr.detectChanges();
-        })
-      )
-      .subscribe({
-        next: (data: any) => {
-          this.connections = Array.isArray(data) ? data : [];
-        },
-        error: (err) => {
-          console.error('Failed to load connections:', err);
-        }
+  refreshConnections() {
+      if(!this.consumerId) return;
+      this.consumerService.getMyConnections(this.consumerId).subscribe({
+          next: (data: any) => {
+              this.connections = Array.isArray(data) ? data : [];
+              this.cdr.detectChanges();
+          },
+          error: (err) => console.error(err)
       });
   }
+
   onRequestSubmit() {
     if (!this.consumerId) {
          alert('Error: User profile not loaded. Try refreshing.');
@@ -83,17 +84,21 @@ export class MyConnectionsComponent implements OnInit {
       utilityType: this.newConnection.utilityType,
       tariffCategory: this.newConnection.tariffCategory
     };
-
     this.consumerService.requestConnection(payload).subscribe({
       next: (res) => {
-        this.isSubmitting = false;        
+        this.isSubmitting = false;                        
         const modalEl = document.getElementById('newConnectionModal');
         if (modalEl) {
           const modalInstance = bootstrap.Modal.getInstance(modalEl);
           if (modalInstance) modalInstance.hide();
         }
-        this.loadConnections();
-        alert('Application Submitted Successfully!');
+        this.showSuccessModal = true;        
+        this.cdr.detectChanges();
+        this.refreshConnections();
+        setTimeout(() => {
+            this.showSuccessModal = false;
+            this.cdr.detectChanges();
+        }, 3000); 
       },
       error: (err) => {
         this.isSubmitting = false;
