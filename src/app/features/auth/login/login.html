@@ -1,1 +1,66 @@
-<p>login works!</p>
+<div class="d-flex vh-100">
+  
+  <div class="d-none d-md-flex col-md-6 align-items-center justify-content-center text-white" 
+       style="background: linear-gradient(135deg, #2563EB 0%, #1D4ED8 100%);">
+    <div class="text-center p-5">
+      <h1 class="display-4 fw-bold mb-3">Utility Munim</h1>
+      <p class="lead text-white-50">Simplify your connection management and billing payments in one place.</p>
+      <i class="bi bi-lightning-charge-fill" style="font-size: 4rem;"></i>
+    </div>
+  </div>
+
+  <div class="col-12 col-md-6 d-flex align-items-center justify-content-center bg-white">
+    <div class="w-100 p-4 p-md-5" style="max-width: 450px;">
+      
+      <div class="mb-4">
+        <h2 class="fw-bold text-dark">Welcome back</h2>
+        <p class="text-muted">Please enter your details to sign in.</p>
+      </div>
+
+      <div *ngIf="errorMessage" class="alert alert-danger d-flex align-items-center" role="alert">
+        <i class="bi bi-exclamation-circle-fill me-2"></i>
+        <div>{{ errorMessage }}</div>
+      </div>
+
+      <form (ngSubmit)="onSubmit()">
+        <div class="mb-3">
+          <label class="form-label fw-medium">Username</label>
+          <input 
+            type="text" 
+            class="form-control" 
+            [(ngModel)]="username" 
+            name="username" 
+            placeholder="Enter your username" 
+            required>
+        </div>
+
+        <div class="mb-4">
+          <label class="form-label fw-medium">Password</label>
+          <input 
+            type="password" 
+            class="form-control" 
+            [(ngModel)]="password" 
+            name="password" 
+            placeholder="••••••••" 
+            required>
+        </div>
+
+        <button 
+          type="submit" 
+          class="btn btn-primary w-100 py-2 mb-3" 
+          [disabled]="isLoading">
+          <span *ngIf="isLoading" class="spinner-border spinner-border-sm me-2"></span>
+          {{ isLoading ? 'Signing in...' : 'Sign in' }}
+        </button>
+
+        <div class="text-center text-muted">
+          Don't have an account? 
+          <a routerLink="/register" class="text-decoration-none fw-medium" style="color: var(--primary-color)">
+            Create account
+          </a>
+        </div>
+      </form>
+
+    </div>
+  </div>
+</div>
