@@ -1,1 +1,114 @@
-<p>my-connections works!</p>
+<div class="d-flex">
+  <app-sidebar></app-sidebar>
+
+  <div class="main-content w-100 bg-light min-vh-100">
+    <app-navbar [pageTitle]="'My Connections'"></app-navbar>
+
+    <div class="container-fluid p-4">
+      
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+          <h4 class="fw-bold mb-1">Utility Meters</h4>
+          <p class="text-muted small">Manage your electricity and water connections.</p>
+        </div>
+        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#newConnectionModal">
+          <i class="bi bi-plus-lg me-2"></i> New Connection
+        </button>
+      </div>
+
+      <div *ngIf="isLoading" class="text-center py-5">
+        <div class="spinner-border text-primary" role="status"></div>
+      </div>
+
+      <div *ngIf="!isLoading" class="row g-4">
+        
+        <div class="col-md-6 col-lg-4" *ngFor="let conn of connections">
+          <div class="card-custom p-4 h-100 position-relative overflow-hidden">
+            
+            <span class="position-absolute top-0 end-0 m-3 badge rounded-pill"
+                  [ngClass]="conn.status === 'ACTIVE' ? 'bg-success' : 'bg-warning text-dark'">
+              {{ conn.status }}
+            </span>
+
+            <div class="mb-3">
+              <div class="bg-primary bg-opacity-10 d-inline-block p-3 rounded-circle">
+                <i class="bi bi-lightning-charge-fill text-primary fs-4"></i>
+              </div>
+            </div>
+
+            <h5 class="fw-bold mb-1">{{ conn.utilityType }}</h5>
+            <p class="text-muted small mb-3">{{ conn.tariffCategory }}</p>
+
+            <div class="border-top pt-3">
+              <div class="d-flex justify-content-between mb-2">
+                <span class="text-muted small">Meter Number</span>
+                <span class="fw-medium font-monospace">{{ conn.meterNumber || 'PENDING' }}</span>
+              </div>
+              <div class="d-flex justify-content-between">
+                <span class="text-muted small">Date</span>
+                <span class="fw-medium">{{ conn.connectionDate | date:'mediumDate' }}</span>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <div *ngIf="connections.length === 0" class="col-12 text-center py-5">
+            <img src="https://cdn-icons-png.flaticon.com/512/7486/7486744.png" width="100" class="mb-3 opacity-50">
+            <h5 class="text-muted">No connections found</h5>
+            <p class="text-muted small">Click "New Connection" to get started.</p>
+        </div>
+
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="newConnectionModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content border-0 shadow">
+      <div class="modal-header border-0 pb-0">
+        <h5 class="modal-title fw-bold">Apply for Connection</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body p-4">
+        
+        <form (ngSubmit)="onRequestSubmit()">
+          
+          <div class="mb-3">
+            <label class="form-label fw-medium">Consumer ID</label>
+            <input type="text" class="form-control bg-light" [value]="consumerId" readonly>
+            <div class="form-text">This connects the meter to your account.</div>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label fw-medium">Utility Type</label>
+            <select class="form-select" [(ngModel)]="newConnection.utilityType" name="type" required>
+              <option value="ELECTRICITY">ELECTRICITY</option>
+              <option value="WATER">WATER</option>
+              <option value="GAS">GAS</option>
+            </select>
+          </div>
+
+          <div class="mb-4">
+            <label class="form-label fw-medium">Tariff Category</label>
+            <select class="form-select" [(ngModel)]="newConnection.tariffCategory" name="tariff" required>
+              <option value="Residential">Residential</option>
+              <option value="Commercial">Commercial</option>
+              <option value="Industrial">Industrial</option>
+            </select>
+          </div>
+
+          <div class="d-grid">
+            <button type="submit" class="btn btn-primary" [disabled]="isSubmitting">
+              {{ isSubmitting ? 'Submitting...' : 'Submit Application' }}
+            </button>
+          </div>
+
+        </form>
+
+      </div>
+    </div>
+  </div>
+</div>

@@ -26,9 +26,13 @@ export class ConsumerService {
         headers: this.getHeaders()
     });
   }
-
   private getHeaders() {
     const token = this.authService.getToken();
     return { 'Authorization': `Bearer ${token}` };
   }
+  requestConnection(connectionData: any): Observable<any> {
+    return this.http.post(`${this.apiUrl}/consumers/connections`, connectionData, {
+        headers: this.getHeaders()
+    });
+    }
 }

@@ -5,7 +5,8 @@ import { SidebarComponent } from '../../../shared/components/sidebar/sidebar';
 import { NavbarComponent } from '../../../shared/components/navbar/navbar';
 import { ConsumerService } from '../../../core/services/consumer';
 import { AuthService } from '../../../core/services/auth';
-import { finalize } from 'rxjs/operators';
+import { finalize, switchMap } from 'rxjs/operators';
+import {of} from 'rxjs';
 
 @Component({
   selector: 'app-consumer-dashboard',
@@ -16,7 +17,7 @@ import { finalize } from 'rxjs/operators';
 export class ConsumerDashboardComponent implements OnInit {
   isLoading = true;
   username = 'User';  
-  consumerId = '69534e8abc30316ea6aaeb6f';   
+  consumerId = '';   
   totalDue = 0;
   activeConnections = 0;
   pendingBillsCount = 0;
@@ -30,12 +31,46 @@ export class ConsumerDashboardComponent implements OnInit {
 
   ngOnInit(): void {
     const user = this.authService.getUserFromStorage();
-    if (user) {
-        this.username = user.username;
+    if (user && user.userId) {
+      this.username = user.username;
+      this.initializeDashboard(user.userId);
+    } else {
+      this.authService.logout();
     }
     setTimeout(() => {
         this.loadDashboardData();
     }, 100);
+  }
+
+  initializeDashboard(authUserId: string) {
+    this.isLoading = true;
+    this.consumerService.getProfile(authUserId).pipe(
+      switchMap((profile: any) => {
+        this.consumerId = profile.id;         
+        return this.consumerService.getMyConnections(this.consumerId);
+      }),
+      finalize(() => {
+        this.isLoading = false;
+        this.cdr.detectChanges();
+      })
+    ).subscribe({
+      next: (connections) => {
+        if (!connections || !Array.isArray(connections)) {
+           this.activeConnections = 0;
+           return;
+        }
+        this.activeConnections = connections.length;
+        connections.forEach(conn => {
+            if (conn && conn.id) this.fetchBillsForConnection(conn.id);
+        });
+      },
+      error: (err) => {
+        console.error('Failed to load dashboard:', err);
+        if (err.status === 404) {
+           console.warn('Profile not found - new user?');
+        }
+      }
+    });
   }
 
   loadDashboardData() {

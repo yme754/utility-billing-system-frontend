@@ -20,8 +20,17 @@ export class AuthService {
       tap((response: any) => {
         if (response.accessToken) {
             const username = response.username || credentials.username;
-            const roles = response.roles || ['consumer']; 
-            this.setSession(response.accessToken, username, roles);
+            let roles = [];
+            if (response.role) {
+                roles = [response.role];
+            } else if (response.roles) {
+                roles = response.roles;
+            } else {
+                roles = ['consumer'];
+            }
+            const userId = response.userId; 
+            
+            this.setSession(response.accessToken, username, roles, userId);
         }
       })
     );
@@ -29,9 +38,13 @@ export class AuthService {
   register(userData: any): Observable<any> {
     return this.http.post(`${this.apiUrl}/register`, userData);
   }
-  private setSession(token: string, username: string, roles: string[]) {
+  private setSession(token: string, username: string, roles: string[], userId: string) {
     localStorage.setItem(this.tokenKey, token);
-    const user = { username, roles };
+    const user = { 
+      userId: userId,
+      username: username, 
+      roles: roles
+    };
     localStorage.setItem(this.userKey, JSON.stringify(user));
     this.currentUserSubject.next(user);
   }
