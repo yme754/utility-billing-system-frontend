@@ -21,6 +21,8 @@ export class ConnectionApprovalsComponent implements OnInit {
   selectedRequest: any = null;
   meterNumber: string = '';
   isProcessing = false;
+  showSuccessModal = false;
+  
   constructor(
     private consumerService: ConsumerService, 
     private cdr: ChangeDetectorRef
@@ -49,7 +51,7 @@ export class ConnectionApprovalsComponent implements OnInit {
 
   openApproveModal(request: any) {
     this.selectedRequest = request;
-    this.meterNumber = '';
+    this.meterNumber = 'MTR-' + Math.floor(1000 + Math.random() * 9000);
     this.cdr.detectChanges();
     const modal = new bootstrap.Modal(document.getElementById('approveModal'));
     modal.show();
@@ -62,11 +64,17 @@ export class ConnectionApprovalsComponent implements OnInit {
       next: () => {
         this.isProcessing = false;        
         const modalEl = document.getElementById('approveModal');
-        const modal = bootstrap.Modal.getInstance(modalEl);
-        modal.hide();
-        this.loadPendingRequests();
+        if (modalEl) {
+           const modal = bootstrap.Modal.getInstance(modalEl);
+           if (modal) modal.hide();
+        }
+        this.showSuccessModal = true;
         this.cdr.detectChanges();
-        alert('Connection Approved & Activated!');
+        this.loadPendingRequests();
+        setTimeout(() => {
+            this.showSuccessModal = false;
+            this.cdr.detectChanges();
+        }, 2000);
       },
       error: (err) => {
         console.error(err);
