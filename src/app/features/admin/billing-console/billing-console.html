@@ -1,1 +1,65 @@
-<p>billing-console works!</p>
+<div class="container mt-4">
+  <div class="row justify-content-center">
+    <div class="col-lg-8">
+      
+      <div class="card shadow-sm border-0 rounded-4">
+        <div class="card-header bg-primary text-white p-4 rounded-top-4">
+          <h4 class="mb-0 fw-bold"><i class="bi bi-speedometer2 me-2"></i> Meter Reading Console</h4>
+          <p class="mb-0 text-white-50 small">Submit readings to trigger automated billing</p>
+        </div>
+        
+        <div class="card-body p-4">
+          
+          <div *ngIf="message" class="alert" [ngClass]="isError ? 'alert-danger' : 'alert-success'">
+            {{ message }}
+          </div>
+
+          <form [formGroup]="searchForm" (ngSubmit)="searchConnection()" class="mb-4">
+            <label class="form-label fw-bold text-muted small">Step 1: Locate Connection</label>
+            <div class="input-group">
+              <input type="text" class="form-control form-control-lg" formControlName="connectionId" placeholder="Enter Connection ID (e.g. 6956...)">
+              <button class="btn btn-dark px-4" type="submit" [disabled]="searchForm.invalid || isLoading">
+                Search
+              </button>
+            </div>
+          </form>
+
+          <hr class="my-4 text-muted opacity-25">
+
+          <div *ngIf="selectedConnection" class="animate-fade-in">
+            <div class="alert alert-light border d-flex justify-content-between align-items-center">
+              <div>
+                <span class="badge bg-success mb-1">Active</span>
+                <h5 class="fw-bold mb-0 text-dark">{{ selectedConnection.consumerName || 'Consumer' }}</h5>
+                <small class="text-muted">Meter: {{ selectedConnection.meterNumber }} | {{ selectedConnection.utilityType }}</small>
+              </div>
+              <i class="bi bi-check-circle-fill text-success fs-3"></i>
+            </div>
+
+            <form [formGroup]="readingForm" (ngSubmit)="submitReading()">
+              <label class="form-label fw-bold text-muted small">Step 2: Enter Current Reading (Units)</label>
+              <div class="input-group mb-3">
+                <span class="input-group-text bg-white"><i class="bi bi-lightning-charge"></i></span>
+                <input type="number" class="form-control form-control-lg" formControlName="reading" placeholder="e.g. 1500">
+              </div>
+
+              <button class="btn btn-primary w-100 py-3 fw-bold rounded-pill shadow-sm" 
+                      type="submit" 
+                      [disabled]="readingForm.invalid || isLoading">
+                <span *ngIf="isLoading" class="spinner-border spinner-border-sm me-2"></span>
+                Submit & Generate Bill
+              </button>
+            </form>
+          </div>
+
+          <div *ngIf="!selectedConnection && !message" class="text-center py-4 text-muted">
+            <i class="bi bi-search fs-1 opacity-25"></i>
+            <p class="mt-2">Search for a connection ID to begin.</p>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>

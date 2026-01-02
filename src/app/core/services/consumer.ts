@@ -9,41 +9,40 @@ import { AuthService } from './auth';
 })
 export class ConsumerService {
   private apiUrl = environment.apiUrl;
-
   constructor(private http: HttpClient, private authService: AuthService) {}
   private getHeaders() {
     const token = this.authService.getToken();
     return { 'Authorization': `Bearer ${token}` };
+  }  
+  getPublicTariffPlans(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.apiUrl}/consumers/tariffs`);
+  }
+  getConsumerCount(): Observable<number> {
+    return this.http.get<number>(`${this.apiUrl}/consumers/count`);
   }
   getProfile(userId: string): Observable<any> {
-    return this.http.get(`${this.apiUrl}/consumers/profile/${userId}`, {
-        headers: this.getHeaders()
-    });
+    return this.http.get(`${this.apiUrl}/consumers/profile/${userId}`, { headers: this.getHeaders() });
   }
   getMyConnections(consumerId: string): Observable<any[]> {
-    return this.http.get<any[]>(`${this.apiUrl}/consumers/${consumerId}/connections`, {
-        headers: this.getHeaders()
-    });
+    return this.http.get<any[]>(`${this.apiUrl}/consumers/${consumerId}/connections`, { headers: this.getHeaders() });
+  }
+  requestConnection(connectionData: any): Observable<any> {
+    return this.http.post(`${this.apiUrl}/consumers/connections`, connectionData, { headers: this.getHeaders() });
   }
   getBillsByConnection(connectionId: string): Observable<any[]> {
-    return this.http.get<any[]>(`${this.apiUrl}/bills/my-bills/${connectionId}`, {
-        headers: this.getHeaders()
-    });
+    return this.http.get<any[]>(`${this.apiUrl}/bills/my-bills/${connectionId}`, { headers: this.getHeaders() });
   }
   getPendingConnections(): Observable<any[]> {
-    return this.http.get<any[]>(`${this.apiUrl}/consumers/connections/pending`, {
-        headers: this.getHeaders() 
-    });
+    return this.http.get<any[]>(`${this.apiUrl}/consumers/connections/pending`, { headers: this.getHeaders() });
   }
   approveConnection(connectionId: string, meterNumber: string): Observable<any> {
     const payload = { meterNumber: meterNumber };
-    return this.http.put(`${this.apiUrl}/consumers/${connectionId}/approve`, payload, {
-        headers: this.getHeaders()
-    });
+    return this.http.put(`${this.apiUrl}/consumers/${connectionId}/approve`, payload, { headers: this.getHeaders() });
   }
-  requestConnection(connectionData: any): Observable<any> {
-    return this.http.post(`${this.apiUrl}/consumers/connections`, connectionData, {
-        headers: this.getHeaders()
-    });
-    }
+  getAllTariffPlans(): Observable<any[]> {
+     return this.http.get<any[]>(`${this.apiUrl}/consumers/tariffs`, { headers: this.getHeaders() });
+  }
+  getConnectionById(id: string): Observable<any> {
+  return this.http.get<any>(`${this.apiUrl}/connections/${id}`);
+}
 }
