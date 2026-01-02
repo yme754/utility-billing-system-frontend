@@ -1,0 +1,12 @@
+.card-header {
+  border-bottom: 1px solid #f0f0f0;
+}
+.table th {
+  font-weight: 600;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #6c757d;
+  padding-top: 1rem;
+  padding-bottom: 1rem;
+}

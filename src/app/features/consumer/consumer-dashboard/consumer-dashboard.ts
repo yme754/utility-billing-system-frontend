@@ -6,7 +6,6 @@ import { NavbarComponent } from '../../../shared/components/navbar/navbar';
 import { ConsumerService } from '../../../core/services/consumer';
 import { AuthService } from '../../../core/services/auth';
 import { finalize, switchMap } from 'rxjs/operators';
-import {of} from 'rxjs';
 
 @Component({
   selector: 'app-consumer-dashboard',
@@ -37,9 +36,6 @@ export class ConsumerDashboardComponent implements OnInit {
     } else {
       this.authService.logout();
     }
-    setTimeout(() => {
-        this.loadDashboardData();
-    }, 100);
   }
 
   initializeDashboard(authUserId: string) {
@@ -59,16 +55,14 @@ export class ConsumerDashboardComponent implements OnInit {
            this.activeConnections = 0;
            return;
         }
-        this.activeConnections = connections.length;
+        this.activeConnections = connections.length;        
         connections.forEach(conn => {
             if (conn && conn.id) this.fetchBillsForConnection(conn.id);
         });
       },
       error: (err) => {
         console.error('Failed to load dashboard:', err);
-        if (err.status === 404) {
-           console.warn('Profile not found - new user?');
-        }
+        this.isLoading = false;
       }
     });
   }
@@ -104,8 +98,8 @@ export class ConsumerDashboardComponent implements OnInit {
       this.consumerService.getBillsByConnection(connectionId).subscribe({
           next: (bills) => {
               if (!bills) return;
-              const unpaid = bills.filter(b => b.status === 'UNPAID');
-              unpaid.forEach(b => {
+              const unpaid = bills.filter((b: any) => b.status === 'UNPAID');
+              unpaid.forEach((b: any) => {
                   this.totalDue += (b.totalAmount || 0);
               });
               this.pendingBillsCount += unpaid.length;              

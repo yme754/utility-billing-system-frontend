@@ -11,6 +11,10 @@ export class ConsumerService {
   private apiUrl = environment.apiUrl;
 
   constructor(private http: HttpClient, private authService: AuthService) {}
+  private getHeaders() {
+    const token = this.authService.getToken();
+    return { 'Authorization': `Bearer ${token}` };
+  }
   getProfile(userId: string): Observable<any> {
     return this.http.get(`${this.apiUrl}/consumers/profile/${userId}`, {
         headers: this.getHeaders()
@@ -27,15 +31,15 @@ export class ConsumerService {
     });
   }
   getPendingConnections(): Observable<any[]> {
-    return this.http.get<any[]>(`${this.apiUrl}/consumers/connections/pending`);
+    return this.http.get<any[]>(`${this.apiUrl}/consumers/connections/pending`, {
+        headers: this.getHeaders() 
+    });
   }
   approveConnection(connectionId: string, meterNumber: string): Observable<any> {
     const payload = { meterNumber: meterNumber };
-    return this.http.put(`${this.apiUrl}/consumers/${connectionId}/approve`, payload);
-  }
-  private getHeaders() {
-    const token = this.authService.getToken();
-    return { 'Authorization': `Bearer ${token}` };
+    return this.http.put(`${this.apiUrl}/consumers/${connectionId}/approve`, payload, {
+        headers: this.getHeaders()
+    });
   }
   requestConnection(connectionData: any): Observable<any> {
     return this.http.post(`${this.apiUrl}/consumers/connections`, connectionData, {

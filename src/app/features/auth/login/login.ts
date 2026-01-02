@@ -27,7 +27,6 @@ export class LoginComponent {
 
     this.isLoading = true;
     this.errorMessage = '';
-
     const credentials = {
       username: this.username,
       password: this.password
