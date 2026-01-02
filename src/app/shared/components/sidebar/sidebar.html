@@ -1,5 +1,5 @@
 <div class="sidebar d-flex flex-column flex-shrink-0 p-3 text-dark bg-white shadow-sm" style="width: 260px; height: 100vh; position: fixed;">
-  <a href="/" class="d-flex align-items-center mb-4 mb-md-0 me-md-auto text-decoration-none px-2">
+  <a routerLink="/" class="d-flex align-items-center mb-4 mb-md-0 me-md-auto text-decoration-none px-2">
     <i class="bi bi-lightning-charge-fill text-primary fs-3 me-2"></i>
     <span class="fs-4 fw-bold text-dark" style="letter-spacing: -0.5px;">Utilix</span>
   </a>
@@ -8,40 +8,45 @@
 
   <ul class="nav nav-pills flex-column mb-auto">
     
-    <ng-container *ngIf="!isAdmin">
+    <ng-container *ngIf="isConsumer">
       <li class="nav-item mb-1">
-        <a routerLink="/consumer/dashboard" routerLinkActive="active" class="nav-link d-flex align-items-center">
-          <i class="bi bi-grid me-3"></i> Dashboard
+        <a routerLink="/consumer/dashboard" routerLinkActive="active" class="nav-link d-flex align-items-center text-dark">
+        <i class="bi bi-grid me-3 fs-5"></i>
+            Dashboard
         </a>
       </li>
       <li class="nav-item mb-1">
-        <a routerLink="/consumer/connections" routerLinkActive="active" class="nav-link d-flex align-items-center">
-          <i class="bi bi-outlet me-3"></i> My Connections
+        <a routerLink="/consumer/connections" routerLinkActive="active" class="nav-link d-flex align-items-center text-dark">
+          <i class="bi bi-outlet me-3 fs-5"></i> My Connections
         </a>
       </li>
       <li class="nav-item mb-1">
-        <a routerLink="/consumer/bills" routerLinkActive="active" class="nav-link d-flex align-items-center">
-          <i class="bi bi-receipt me-3"></i> Bill History
+        <a routerLink="/consumer/bills" routerLinkActive="active" class="nav-link d-flex align-items-center text-dark">
+          <i class="bi bi-receipt me-3 fs-5"></i> Bill History
         </a>
       </li>
     </ng-container>
 
     <ng-container *ngIf="isAdmin">
+      <li class="nav-item mt-3 mb-2 px-2 text-uppercase text-muted small fw-bold"
+          style="font-size: 0.75rem;">
+          Administration
+      </li>
       <li class="nav-item mb-1">
-        <a routerLink="/admin/dashboard" routerLinkActive="active" class="nav-link d-flex align-items-center">
-          <i class="bi bi-speedometer2 me-3"></i> Admin Stats
+        <a routerLink="/admin/dashboard" routerLinkActive="active" class="nav-link d-flex align-items-center text-dark">
+          <i class="bi bi-speedometer2 me-3 fs-5"></i> Overview
         </a>
       </li>
       <li class="nav-item mb-1">
-        <a routerLink="/admin/connections" routerLinkActive="active" class="nav-link d-flex align-items-center">
-          <i class="bi bi-people me-3"></i> Connection Requests
-        </a>
-      </li>
-      <li class="nav-item mb-1">
-        <a routerLink="/admin/billing" routerLinkActive="active" class="nav-link d-flex align-items-center">
-          <i class="bi bi-cash-stack me-3"></i> Billing Console
-        </a>
-      </li>
+    <a routerLink="/admin/approvals"
+     routerLinkActive="active"
+     class="nav-link d-flex align-items-center text-dark justify-content-between">
+      <span>
+      <i class="bi bi-check-circle me-3 fs-5"></i> Approvals
+      </span>
+      <span class="badge bg-danger rounded-pill" style="font-size: 0.6rem;">!</span>
+      </a>
+    </li>
     </ng-container>
 
   </ul>
@@ -50,14 +55,14 @@
   <div class="dropdown">
     <a href="#" class="d-flex align-items-center text-dark text-decoration-none dropdown-toggle" id="dropdownUser1" data-bs-toggle="dropdown" aria-expanded="false">
       <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center me-2" style="width: 32px; height: 32px;">
-        {{ username.charAt(0).toUpperCase() }}
+        {{ username ? username.charAt(0).toUpperCase() : 'U' }}
       </div>
-      <strong>{{ username }}</strong>
+      <strong>{{ username || 'User' }}</strong>
     </a>
     <ul class="dropdown-menu text-small shadow" aria-labelledby="dropdownUser1">
       <li><a class="dropdown-item" href="#">Profile</a></li>
       <li><hr class="dropdown-divider"></li>
-      <li><a class="dropdown-item text-danger" (click)="logout()">Sign out</a></li>
+      <li><a class="dropdown-item text-danger" role="button" (click)="onLogout()">Sign out</a></li>
     </ul>
   </div>
 </div>
