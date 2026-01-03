@@ -1,18 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { BillHistory } from './bill-history';
+import { BillHistoryComponent } from './bill-history';
 
 describe('BillHistory', () => {
-  let component: BillHistory;
-  let fixture: ComponentFixture<BillHistory>;
+  let component: BillHistoryComponent;
+  let fixture: ComponentFixture<BillHistoryComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [BillHistory]
+      imports: [BillHistoryComponent]
     })
     .compileComponents();
 
-    fixture = TestBed.createComponent(BillHistory);
+    fixture = TestBed.createComponent(BillHistoryComponent);
     component = fixture.componentInstance;
     await fixture.whenStable();
   });

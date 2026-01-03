@@ -43,6 +43,9 @@ export class ConsumerService {
      return this.http.get<any[]>(`${this.apiUrl}/consumers/tariffs`, { headers: this.getHeaders() });
   }
   getConnectionById(id: string): Observable<any> {
-  return this.http.get<any>(`${this.apiUrl}/connections/${id}`);
-}
+    return this.http.get<any>(`${this.apiUrl}/consumers/connections/${id}`, { headers: this.getHeaders() });
+  }
+  getAllConnections(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.apiUrl}/consumers/connections`, { headers: this.getHeaders() });
+  }
 }

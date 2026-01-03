@@ -27,7 +27,6 @@ export class ConsumerDashboardComponent implements OnInit {
     private authService: AuthService,
     private cdr: ChangeDetectorRef
   ) {}
-
   ngOnInit(): void {
     const user = this.authService.getUserFromStorage();
     if (user && user.userId) {
@@ -37,7 +36,6 @@ export class ConsumerDashboardComponent implements OnInit {
       this.authService.logout();
     }
   }
-
   initializeDashboard(authUserId: string) {
     this.isLoading = true;
     this.consumerService.getProfile(authUserId).pipe(
@@ -66,7 +64,6 @@ export class ConsumerDashboardComponent implements OnInit {
       }
     });
   }
-
   loadDashboardData() {
     this.consumerService.getMyConnections(this.consumerId)
       .pipe(

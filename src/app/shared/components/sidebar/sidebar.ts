@@ -15,15 +15,19 @@ export class SidebarComponent implements OnInit {
   username = 'User';
   isConsumer = false;
   constructor(private authService: AuthService) {}
-
-  ngOnInit(): void {
-    const user = this.authService.getUserFromStorage();
-    if (user && user.roles) {
-      this.username = user.username;
-      this.isAdmin = user.roles.includes('ROLE_ADMIN') || user.roles.includes('ROLE_BILLING_OFFICER');
-      this.isConsumer = user.roles.includes('ROLE_CONSUMER');
-    }
+ngOnInit(): void {
+  this.loadUserInfo();
+}
+loadUserInfo() {
+  const user = this.authService.getUserFromStorage();
+  if (user) {
+    this.username = user.username;
+    this.isAdmin = user.roles?.some((r: string) => 
+      ['ROLE_ADMIN', 'ROLE_BILLING_OFFICER', 'ROLE_ACCOUNTS_OFFICER'].includes(r)
+    );
+    this.isConsumer = user.roles?.includes('ROLE_CONSUMER');
   }
+}
   onLogout() {
     this.authService.logout();
   }

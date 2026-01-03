@@ -14,15 +14,14 @@
             {{ message }}
           </div>
 
-          <form [formGroup]="searchForm" (ngSubmit)="searchConnection()" class="mb-4">
+          <div class="mb-4">
             <label class="form-label fw-bold text-muted small">Step 1: Locate Connection</label>
-            <div class="input-group">
-              <input type="text" class="form-control form-control-lg" formControlName="connectionId" placeholder="Enter Connection ID (e.g. 6956...)">
-              <button class="btn btn-dark px-4" type="submit" [disabled]="searchForm.invalid || isLoading">
-                Search
+            <div class="d-grid">
+              <button class="btn btn-outline-dark py-3 border-2 fw-bold" (click)="openSelectionModal()">
+                <i class="bi bi-list-ul me-2"></i> Select From Active Connections
               </button>
             </div>
-          </form>
+          </div>
 
           <hr class="my-4 text-muted opacity-25">
 
@@ -31,9 +30,12 @@
               <div>
                 <span class="badge bg-success mb-1">Active</span>
                 <h5 class="fw-bold mb-0 text-dark">{{ selectedConnection.consumerName || 'Consumer' }}</h5>
-                <small class="text-muted">Meter: {{ selectedConnection.meterNumber }} | {{ selectedConnection.utilityType }}</small>
+                <small class="text-muted d-block">Meter: <strong>{{ selectedConnection.meterNumber }}</strong></small>
+                <small class="text-muted">ID: {{ selectedConnection.id }}</small>
               </div>
-              <i class="bi bi-check-circle-fill text-success fs-3"></i>
+              <button class="btn btn-sm btn-outline-danger" (click)="selectedConnection = null">
+                <i class="bi bi-x-lg"></i>
+              </button>
             </div>
 
             <form [formGroup]="readingForm" (ngSubmit)="submitReading()">
@@ -53,13 +55,70 @@
           </div>
 
           <div *ngIf="!selectedConnection && !message" class="text-center py-4 text-muted">
-            <i class="bi bi-search fs-1 opacity-25"></i>
-            <p class="mt-2">Search for a connection ID to begin.</p>
+            <i class="bi bi-cursor fs-1 opacity-25"></i>
+            <p class="mt-2">Select a connection to begin.</p>
           </div>
 
         </div>
       </div>
+    </div>
+  </div>
+</div>
 
+<div class="modal-backdrop fade show" *ngIf="showModal"></div>
+<div class="modal fade show d-block" tabindex="-1" *ngIf="showModal">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content border-0 shadow">
+      <div class="modal-header bg-light">
+        <h5 class="modal-title fw-bold">Select Active Connection</h5>
+        <button type="button" class="btn-close" (click)="closeModal()"></button>
+      </div>
+      <div class="modal-body p-0">
+        
+        <div class="table-responsive">
+          <table class="table table-hover mb-0 align-middle">
+            <thead class="bg-light small text-uppercase">
+              <tr>
+                <th class="ps-4">Consumer</th>
+                <th>Meter No</th>
+                <th>Utility</th>
+                <th class="text-end pe-4">Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let conn of paginatedConnections">
+                <td class="ps-4">
+                  <div class="fw-bold">{{ conn.consumerName || 'Unknown' }}</div>
+                  <small class="text-muted" style="font-size: 0.75rem">{{ conn.id }}</small>
+                </td>
+                <td><span class="badge bg-secondary">{{ conn.meterNumber }}</span></td>
+                <td>{{ conn.utilityType }}</td>
+                <td class="text-end pe-4">
+                  <button class="btn btn-sm btn-primary" (click)="selectConnection(conn)">
+                    Select
+                  </button>
+                </td>
+              </tr>
+              <tr *ngIf="paginatedConnections.length === 0">
+                <td colspan="4" class="text-center py-4 text-muted">No active connections found.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+      </div>
+      <div class="modal-footer bg-light justify-content-between">
+        <small class="text-muted">Showing page {{currentPage}} of {{totalPages || 1}}</small>
+        
+        <div class="btn-group">
+          <button class="btn btn-outline-secondary btn-sm" 
+                  [disabled]="currentPage === 1" 
+                  (click)="changePage(currentPage - 1)">Previous</button>
+          <button class="btn btn-outline-secondary btn-sm" 
+                  [disabled]="currentPage >= totalPages" 
+                  (click)="changePage(currentPage + 1)">Next</button>
+        </div>
+      </div>
     </div>
   </div>
 </div>

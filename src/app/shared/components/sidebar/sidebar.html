@@ -37,16 +37,25 @@
           <i class="bi bi-speedometer2 me-3 fs-5"></i> Overview
         </a>
       </li>
+      
       <li class="nav-item mb-1">
-    <a routerLink="/admin/approvals"
-     routerLinkActive="active"
-     class="nav-link d-flex align-items-center text-dark justify-content-between">
-      <span>
-      <i class="bi bi-check-circle me-3 fs-5"></i> Approvals
-      </span>
-      <span class="badge bg-danger rounded-pill" style="font-size: 0.6rem;">!</span>
-      </a>
-    </li>
+  <a routerLink="/admin/manage-users" 
+     routerLinkActive="active" 
+     class="nav-link d-flex align-items-center text-dark">
+    <i class="bi bi-person-gear me-3 fs-5"></i> User Management
+  </a>
+</li>
+
+      <li class="nav-item mb-1">
+        <a routerLink="/admin/approvals"
+           routerLinkActive="active"
+           class="nav-link d-flex align-items-center text-dark justify-content-between">
+          <span>
+            <i class="bi bi-check-circle me-3 fs-5"></i> Approvals
+          </span>
+          <span class="badge bg-danger rounded-pill" style="font-size: 0.6rem;">!</span>
+        </a>
+      </li>
     </ng-container>
 
   </ul>

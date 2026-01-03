@@ -5,18 +5,15 @@ import { SidebarComponent } from './sidebar';
 describe('Sidebar', () => {
   let component: SidebarComponent;
   let fixture: ComponentFixture<SidebarComponent>;
-
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [SidebarComponent]
     })
     .compileComponents();
-
     fixture = TestBed.createComponent(SidebarComponent);
     component = fixture.componentInstance;
     await fixture.whenStable();
   });
-
   it('should create', () => {
     expect(component).toBeTruthy();
   });
