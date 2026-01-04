@@ -27,6 +27,7 @@ export const routes: Routes = [
   { 
     path: 'admin/billing-console', 
     loadComponent: () => import('./features/admin/billing-console/billing-console')
-      .then(m => m.BillingConsoleComponent) 
+      .then(m => m.BillingConsoleComponent),
+    canActivate: [AuthGuard]
   }
 ];

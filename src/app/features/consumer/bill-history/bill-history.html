@@ -1,49 +1,62 @@
-<div class="card shadow-sm border-0">
-  <div class="card-header bg-white py-3">
-    <h5 class="mb-0 fw-bold">Billing History</h5>
-  </div>
-  
-  <div class="card-body p-0">
-    <div *ngIf="isLoading" class="text-center py-5">
-      <div class="spinner-border spinner-border-sm text-primary"></div> Loading bills...
-    </div>
+<div class="d-flex">
+  <app-sidebar></app-sidebar>
 
-    <div *ngIf="!isLoading && bills.length === 0" class="text-center py-5">
-      <p class="text-muted mb-0">No bills generated for this connection yet.</p>
-    </div>
+  <div class="flex-grow-1" style="margin-left: 260px;">
+    <app-navbar></app-navbar>
 
-    <div *ngIf="!isLoading && bills.length > 0" class="table-responsive">
-      <table class="table table-hover align-middle mb-0">
-        <thead class="bg-light text-uppercase small text-muted">
-          <tr>
-            <th class="ps-4">Date</th>
-            <th>Units</th>
-            <th>Amount</th>
-            <th>Status</th>
-            <th class="text-end pe-4">Action</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr *ngFor="let bill of bills">
-            <td class="ps-4">{{ bill.date | date:'mediumDate' }}</td>
-            <td>{{ bill.unitsConsumed }} kWh</td>
-            <td class="fw-bold">{{ bill.amount | currency:'INR' }}</td>
-            <td>
-              <span class="badge" [ngClass]="bill.status === 'PAID' ? 'bg-success' : 'bg-danger'">
-                {{ bill.status }}
-              </span>
-            </td>
-            <td class="text-end pe-4">
-              <button *ngIf="bill.status === 'UNPAID'" class="btn btn-sm btn-primary">
-                Pay Now
-              </button>
-              <button *ngIf="bill.status === 'PAID'" class="btn btn-sm btn-outline-secondary" disabled>
-                Receipt
-              </button>
-            </td>
-          </tr>
-        </tbody>
-      </table>
+    <div class="p-4 bg-light" style="min-height: calc(100vh - 64px);">
+      <div class="container-fluid">
+        
+        <div class="card shadow-sm border-0">
+          <div class="card-header bg-white py-3">
+            <h5 class="mb-0 fw-bold">Billing History</h5>
+          </div>
+          
+          <div class="card-body p-0">
+            <div *ngIf="isLoading" class="text-center py-5">
+              <div class="spinner-border spinner-border-sm text-primary"></div> Loading bills...
+            </div>
+
+            <div *ngIf="!isLoading && bills.length === 0" class="text-center py-5">
+              <p class="text-muted mb-0">No bills generated for this connection yet.</p>
+            </div>
+
+            <div *ngIf="!isLoading && bills.length > 0" class="table-responsive">
+              <table class="table table-hover align-middle mb-0">
+                <thead class="bg-light text-uppercase small text-muted">
+                  <tr>
+                    <th class="ps-4">Date</th>
+                    <th>Units</th>
+                    <th>Amount</th>
+                    <th>Status</th>
+                    <th class="text-end pe-4">Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let bill of bills">
+                    <td class="ps-4">{{ bill.date | date:'mediumDate' }}</td>
+                    <td>{{ bill.unitsConsumed }} kWh</td>
+                    <td class="fw-bold">{{ bill.amount | currency:'INR' }}</td>
+                    <td>
+                      <span class="badge" [ngClass]="bill.status === 'PAID' ? 'bg-success' : 'bg-danger'">
+                        {{ bill.status }}
+                      </span>
+                    </td>
+                    <td class="text-end pe-4">
+                      <button *ngIf="bill.status === 'UNPAID'" class="btn btn-sm btn-primary">
+                        Pay Now
+                      </button>
+                      <button *ngIf="bill.status === 'PAID'" class="btn btn-sm btn-outline-secondary" disabled>
+                        Receipt
+                      </button>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+        </div>
     </div>
   </div>
 </div>

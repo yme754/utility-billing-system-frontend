@@ -19,10 +19,12 @@ export class ManageUsersComponent implements OnInit {
 
   users: User[] = [];
   roles = ['ROLE_ADMIN', 'ROLE_CONSUMER', 'ROLE_BILLINGS_OFFICER', 'ROLE_ACCOUNTS_OFFICER'];
+  
   showModal = false;
   modalTitle = '';
   modalMessage = '';
   modalType: ModalType = 'WARNING';
+  
   pendingUser: User | null = null;
   actionType: 'ACTIVATE' | 'DEACTIVATE' = 'DEACTIVATE';
 
@@ -32,15 +34,16 @@ export class ManageUsersComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-  setTimeout(() => {
-    this.loadUsers();
-  }, 100); 
-}
+    setTimeout(() => {
+      this.loadUsers();
+    }, 100); 
+  }
 
   loadUsers() {
     this.userService.getAllUsers().subscribe({
       next: (data: any[]) => {
-        this.users = [...data.map(u => ({...u,
+        this.users = [...data.map(u => ({
+          ...u,
           role: u.roles?.[0] ?? null,
           tempRole: '' 
         }))];        
@@ -54,6 +57,7 @@ export class ManageUsersComponent implements OnInit {
       }
     });
   }
+
   openModal(title: string, message: string, type: ModalType) {
     this.modalTitle = title;
     this.modalMessage = message;
@@ -61,6 +65,7 @@ export class ManageUsersComponent implements OnInit {
     this.showModal = true;     
     this.cdr.detectChanges();
   }
+
   onApprove(user: User) {
     if (!user.tempRole) {
       this.openModal(
@@ -77,6 +82,7 @@ export class ManageUsersComponent implements OnInit {
       'APPROVE'
     );
   }
+
   onDeny(user: User) {
     this.pendingUser = user;
     this.openModal(
@@ -85,6 +91,7 @@ export class ManageUsersComponent implements OnInit {
       'DENY'
     );
   }
+
   initiateStatusChange(user: User, type: 'ACTIVATE' | 'DEACTIVATE') {
     this.pendingUser = user;
     this.actionType = type;
@@ -94,43 +101,70 @@ export class ManageUsersComponent implements OnInit {
       'STATUS_CHANGE'
     );
   }
+
   handleModalConfirm() {
-  if (this.modalType === 'WARNING') {
-    this.closeModal();
-    return;
+    if (this.modalType === 'WARNING') {
+      this.closeModal();
+      return;
+    }
+
+    if (!this.pendingUser) return;
+    if (this.modalType === 'APPROVE') {
+      this.userService.approveUser(this.pendingUser.id, this.pendingUser.tempRole!).subscribe({
+        next: () => {
+          const index = this.users.findIndex(u => u.id === this.pendingUser?.id);
+          if (index !== -1) {
+            this.users[index].status = 'ACTIVE';
+            this.users[index].role = this.pendingUser!.tempRole ?? null;
+            this.users[index].tempRole = ''; 
+          }
+          this.closeModal();
+        },
+        error: (err) => {
+          console.error('Approval failed', err);
+          this.closeModal();
+        }
+      });
+    }     
+    else if (this.modalType === 'DENY') {
+      this.userService.updateUserStatus(this.pendingUser.id, 'DENIED').subscribe({
+        next: () => {
+          const index = this.users.findIndex(u => u.id === this.pendingUser?.id);
+          if (index !== -1) {
+            this.users[index].status = 'DENIED';
+          }
+          this.closeModal();
+        },
+        error: (err) => {
+          console.error('Deny failed', err);
+          this.closeModal();
+        }
+      });
+    }     
+    else if (this.modalType === 'STATUS_CHANGE') {
+      const newStatus = this.actionType === 'ACTIVATE' ? 'ACTIVE' : 'INACTIVE';
+      this.userService.updateUserStatus(this.pendingUser.id, newStatus).subscribe({
+        next: () => {
+          const index = this.users.findIndex(u => u.id === this.pendingUser?.id);
+          if (index !== -1) {
+            this.users[index].status = newStatus;
+          }
+          this.closeModal();
+        },
+        error: (err) => {
+          console.error('Status change failed', err);
+          this.closeModal();
+        }
+      });
+    }
   }
-  if (!this.pendingUser) return;
-  let action$;
-  if (this.modalType === 'APPROVE') {
-    action$ = this.userService.approveUser(this.pendingUser.id, this.pendingUser.tempRole!);
-  } else if (this.modalType === 'DENY') {
-    action$ = this.userService.updateUserStatus(this.pendingUser.id, 'DENIED');
-  } else if (this.modalType === 'STATUS_CHANGE') {
-    const statusToSend = this.actionType === 'ACTIVATE' ? 'ACTIVE' : 'INACTIVE';
-    action$ = this.userService.updateUserStatus(this.pendingUser.id, statusToSend);
-  }
-  if (action$) {
-    action$.subscribe({
-      next: (response) => {
-        console.log('Action successful:', response);
-        this.showModal = false; 
-        this.pendingUser = null;
-        setTimeout(() => {
-          this.loadUsers();
-        }, 300);
-      },
-      error: (err) => {
-        console.error('Action failed:', err);
-        this.closeModal();
-      }
-    });
-  }
-}
+
   closeModal() {
     this.showModal = false;
     this.pendingUser = null;
     this.cdr.detectChanges();
   }
+
   closeAndRefresh() {
     this.closeModal();
     this.loadUsers();

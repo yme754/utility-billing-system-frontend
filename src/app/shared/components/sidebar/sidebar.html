@@ -57,6 +57,15 @@
         </a>
       </li>
     </ng-container>
+    <ng-container *ngIf="isAdmin">
+    <li class="nav-item mb-1">
+  <a routerLink="/admin/billing-console" 
+     routerLinkActive="active" 
+     class="nav-link d-flex align-items-center text-dark">
+    <i class="bi bi-calculator me-3 fs-5"></i> Billing Console
+  </a>
+</li>
+</ng-container>
 
   </ul>
 

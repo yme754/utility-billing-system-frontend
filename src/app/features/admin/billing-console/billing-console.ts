@@ -3,14 +3,22 @@ import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MeterService } from '../../../core/services/meter';
 import { ConsumerService } from '../../../core/services/consumer';
+import { SidebarComponent } from '../../../shared/components/sidebar/sidebar';
+import { NavbarComponent } from '../../../shared/components/navbar/navbar';
 
 @Component({
   selector: 'app-billing-console',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [
+    CommonModule,
+    ReactiveFormsModule,
+    SidebarComponent,
+    NavbarComponent
+  ],
   templateUrl: './billing-console.html',
   styleUrls: ['./billing-console.css']
 })
+
 export class BillingConsoleComponent implements OnInit {
   readingForm: FormGroup;
 
