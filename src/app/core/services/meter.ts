@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { AuthService } from './auth';
 
@@ -9,18 +9,17 @@ import { AuthService } from './auth';
 export class MeterService {
   private apiUrl = 'http://localhost:8080/readings';
 
-  constructor(
-    private http: HttpClient,
-    private authService: AuthService
-  ) {}
+  constructor(private http: HttpClient, private authService: AuthService) {}
   private getHeaders() {
     const token = this.authService.getToken();
-    return { 'Authorization': `Bearer ${token}` };
+    return new HttpHeaders()
+      .set('Authorization', `Bearer ${token}`)
+      .set('Content-Type', 'application/json');
   }
-  submitReading(readingData: any): Observable<any> {
-    return this.http.post(this.apiUrl, readingData, { headers: this.getHeaders() });
+  submitReading(readingPayload: any): Observable<any> {
+    return this.http.post(this.apiUrl, readingPayload, { headers: this.getHeaders() });
   }
-  getReadingHistory(meterId: string): Observable<any[]> {
-    return this.http.get<any[]>(`${this.apiUrl}/${meterId}`, { headers: this.getHeaders() });
+  getReadingsForCurrentMonth(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.apiUrl}/current-month`, { headers: this.getHeaders() });
   }
 }

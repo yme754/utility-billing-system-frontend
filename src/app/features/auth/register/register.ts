@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
@@ -19,35 +19,69 @@ export class RegisterComponent {
     firstName: '',
     lastName: '',
     address: '',
+    phoneNumber: '',
     roles: ['consumer']
   };
-  
-  isLoading = false;
+  isLoading = false;  
+  fieldErrors = {
+    username: '',
+    email: '',
+    phone: ''
+  };
   errorMessage = '';
   successMessage = '';
-  constructor(private authService: AuthService, private router: Router) {}
+
+  constructor(
+    private authService: AuthService, 
+    private router: Router,
+    private cd: ChangeDetectorRef
+  ) {}
 
   onSubmit() {
-    if (!this.user.username || !this.user.email || !this.user.password) {
-      this.errorMessage = 'Please fill in all fields.';
-      return;
-    }
     this.isLoading = true;
-    this.errorMessage = '';
-    this.successMessage = '';
+    this.resetErrors();
     this.authService.register(this.user).subscribe({
       next: (res) => {
         this.isLoading = false;
-        this.successMessage = 'Registration successful! Redirecting to login...';        
+        this.successMessage = 'Registration successful! Redirecting to login...';
+        this.cd.detectChanges();
         setTimeout(() => {
           this.router.navigate(['/login']);
         }, 2000);
       },
       error: (err) => {
         this.isLoading = false;
-        console.error(err);
-        this.errorMessage = err.error?.message || 'Registration failed. Try again.';
+        console.log('Full Error Object:', err);
+        let backendMsg = '';
+        if (err.error && typeof err.error === 'object' && err.error.message) {
+          backendMsg = err.error.message;
+        } else if (typeof err.error === 'string') {
+          backendMsg = err.error;
+        } else {
+          backendMsg = err.message || 'An unknown error occurred';
+        }
+        
+        const msgLower = backendMsg.toLowerCase();
+        if (msgLower.includes('username')) {
+          this.fieldErrors.username = 'Username is already taken.';
+        } 
+        else if (msgLower.includes('email')) {
+          this.fieldErrors.email = 'Email is already registered.';
+        } 
+        else if (msgLower.includes('phone')) {
+          this.fieldErrors.phone = 'Phone number is already linked to an account.';
+        } 
+        else {
+          this.errorMessage = backendMsg;
+        }
+        this.cd.detectChanges();
       }
     });
+  }
+
+  private resetErrors() {
+    this.errorMessage = '';
+    this.successMessage = '';
+    this.fieldErrors = { username: '', email: '', phone: '' };
   }
 }

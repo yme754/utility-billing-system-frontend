@@ -24,27 +24,37 @@ export class LoginComponent {
       this.errorMessage = 'Please enter both username and password.';
       return;
     }
-
     this.isLoading = true;
     this.errorMessage = '';
+
     const credentials = {
       username: this.username,
       password: this.password
     };
 
     this.authService.login(credentials).subscribe({
-      next: (res) => {
+      next: (res: any) => {
         this.isLoading = false;
-        const user = this.authService.getUserFromStorage();        
-        if (user && user.roles && user.roles.includes('ROLE_ADMIN')) {
-            this.router.navigate(['/admin/dashboard']);
-        } else {
+        localStorage.setItem('userStatus', res.status);
+        if (res.role === 'ROLE_ADMIN') {
+          this.router.navigate(['/admin/dashboard']);
+        } 
+        else if (res.role === 'ROLE_BILLING_OFFICER') {
+          this.router.navigate(['/officer/approvals']);
+        }
+        else if (res.role === 'ROLE_ACCOUNTS_OFFICER') {
+          this.router.navigate(['/accounts/dashboard']);
+        }
+        else if (res.role === 'ROLE_CONSUMER') {
+          if (res.status === 'PENDING') {
+            this.router.navigate(['/pending-approval']);
+          } else {
             this.router.navigate(['/consumer/dashboard']);
+          }
         }
       },
-      error: (err) => {
+      error: () => {
         this.isLoading = false;
-        console.error(err);
         this.errorMessage = 'Invalid username or password';
       }
     });

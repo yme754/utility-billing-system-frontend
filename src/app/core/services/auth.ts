@@ -69,4 +69,10 @@ export class AuthService {
   if (!token) return null;
   return JSON.parse(atob(token.split('.')[1]));
 }
+
+changePassword(passwords: any): Observable<any> {
+  const token = this.getToken();
+  const headers = { 'Authorization': `Bearer ${token}` };  
+  return this.http.post(`${environment.apiUrl}/auth/change-password`, passwords, { headers });
+}
 }

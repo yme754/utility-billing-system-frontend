@@ -29,3 +29,8 @@ select option[value=""][disabled] {
     padding-top: 2px;
     padding-bottom: 2px;
 }
+.btn-white {
+  background-color: #fff;
+  border: 1px solid #dee2e6;
+  color: #333;
+}

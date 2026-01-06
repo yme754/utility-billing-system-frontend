@@ -1,8 +1,8 @@
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, Router } from '@angular/router';
-import { SidebarComponent } from '../../../shared/components/sidebar/sidebar'; // Ensure path is correct
-import { NavbarComponent } from '../../../shared/components/navbar/navbar'; // Ensure path is correct
+import { SidebarComponent } from '../../../shared/components/sidebar/sidebar';
+import { NavbarComponent } from '../../../shared/components/navbar/navbar';
 import { ConsumerService } from '../../../core/services/consumer';
 import { AuthService } from '../../../core/services/auth';
 import { finalize, switchMap } from 'rxjs/operators';

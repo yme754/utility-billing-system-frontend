@@ -32,7 +32,7 @@
                 <a class="contact-item" href="tel:9989774310">
                   <i class="bi bi-headset fs-4 text-primary me-3"></i>
                   <div>
-                    <div class="small text-muted">Support Hotline</div>
+                    <div class="small text-muted">Support</div>
                     <div class="fw-bold">9989774310</div>
                   </div>
                 </a>
@@ -40,11 +40,11 @@
             </ul>
           </div>
 
-          <a routerLink="/login" class="btn btn-warning bg-opacity-25 text-warning-emphasis fw-bold px-4 rounded-pill" 
+          <a routerLink="/login" class="btn btn-primary bg-opacity-25 text-warning-emphasis fw-bold px-4 rounded-pill" 
              style="background-color: #fff8e1; color: #b45309; border: none;">
             Login
           </a>
-          <a routerLink="/register" class="btn btn-primary px-4 rounded-pill fw-bold">Sign Up</a>
+          <a routerLink="/register" class="btn btn-primary bg-opacity-25 text-warning-emphasis px-4 rounded-pill fw-bold">Sign Up</a>
         </div>
       </div>
     </div>
@@ -87,14 +87,14 @@
     <div class="d-flex justify-content-center mb-5 flex-wrap gap-2">
       <button *ngFor="let type of ['ELECTRICITY', 'WATER', 'GAS', 'INTERNET']"
               class="btn rounded-pill px-4 py-2 fw-medium transition-btn"
-              [ngClass]="activeTab === type ? 'btn-primary shadow' : 'btn-white bg-white text-muted border'"
+              [ngClass]="activeTab === type ? 'btn btn-outline-primary shadow' : 'btn-white bg-white text-muted border'"
               (click)="filterTariffs(type)">
         <i class="bi me-2" 
            [ngClass]="{
-             'bi-lightning-charge': type === 'ELECTRICITY', 
-             'bi-droplet': type === 'WATER',
-             'bi-fire': type === 'GAS',
-             'bi-wifi': type === 'INTERNET'
+             'bi-lightning-charge text-warning': type === 'ELECTRICITY', 
+             'bi-droplet text-info': type === 'WATER',
+             'bi-fire text-danger': type === 'GAS',
+             'bi-wifi text-primary': type === 'INTERNET'
            }"></i>
         {{ type }}
       </button>
@@ -155,7 +155,7 @@
       <div class="col-6 col-md-3">
         <div class="p-4 border rounded-4 bg-light h-100">
           <i class="bi bi-receipt fs-1 text-success mb-3 d-block"></i>
-          <h2 class="fw-bold mb-1">1.2M+</h2>
+          <h2 class="fw-bold mb-1">{{ billsProcessed }}</h2>
           <p class="text-muted small mb-0">Bills Processed</p>
         </div>
       </div>

@@ -17,9 +17,13 @@ type ModalType = 'APPROVE' | 'DENY' | 'STATUS_CHANGE' | 'WARNING';
 })
 export class ManageUsersComponent implements OnInit {
 
-  users: User[] = [];
-  roles = ['ROLE_ADMIN', 'ROLE_CONSUMER', 'ROLE_BILLINGS_OFFICER', 'ROLE_ACCOUNTS_OFFICER'];
+  allUsers: User[] = [];
+  filteredUsers: User[] = [];
   
+  searchTerm: string = '';
+  selectedStatus: string = 'ALL';
+  sortBy: string = 'status';
+
   showModal = false;
   modalTitle = '';
   modalMessage = '';
@@ -34,28 +38,69 @@ export class ManageUsersComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    setTimeout(() => {
-      this.loadUsers();
-    }, 100); 
+    this.loadUsers();
   }
 
   loadUsers() {
     this.userService.getAllUsers().subscribe({
       next: (data: any[]) => {
-        this.users = [...data.map(u => ({
+        this.allUsers = data.map(u => ({
           ...u,
-          role: u.roles?.[0] ?? null,
+          role: u.roles?.[0] ?? 'N/A',
           tempRole: '' 
-        }))];        
+        }));
+        
+        this.applyFilters();
         this.cdr.markForCheck();
         this.cdr.detectChanges();
       },
       error: err => {
         console.error('Failed to load users', err);
-        this.users = [];
+        this.allUsers = [];
+        this.filteredUsers = [];
         this.cdr.detectChanges();
       }
     });
+  }
+
+  applyFilters() {
+    let temp = [...this.allUsers];
+    if (this.selectedStatus !== 'ALL') {
+      temp = temp.filter(u => u.status === this.selectedStatus);
+    }
+
+    if (this.searchTerm.trim()) {
+      const term = this.searchTerm.toLowerCase();
+      temp = temp.filter(u => 
+        (u.username && u.username.toLowerCase().includes(term)) ||
+        (u.email && u.email.toLowerCase().includes(term))
+      );
+    }
+
+    if (this.sortBy === 'username') {
+      temp.sort((a, b) => a.username.localeCompare(b.username));
+    } else if (this.sortBy === 'role') {
+      temp.sort((a, b) => (a.role || '').localeCompare(b.role || ''));
+    } else if (this.sortBy === 'status') {
+      const statusPriority: { [key: string]: number } = {
+        'PENDING': 1,
+        'ACTIVE': 2,
+        'DENIED': 3,
+        'INACTIVE': 4
+      };
+      temp.sort((a, b) => {
+        const orderA = statusPriority[a.status || ''] || 99;
+        const orderB = statusPriority[b.status || ''] || 99;
+        return orderA - orderB;
+      });
+    }
+
+    this.filteredUsers = temp;
+  }
+
+  filterByStatus(status: string) {
+    this.selectedStatus = status;
+    this.applyFilters();
   }
 
   openModal(title: string, message: string, type: ModalType) {
@@ -68,28 +113,16 @@ export class ManageUsersComponent implements OnInit {
 
   onApprove(user: User) {
     if (!user.tempRole) {
-      this.openModal(
-        'Missing Role',
-        'Please assign a role before approving this user.',
-        'WARNING'
-      );
+      this.openModal('Missing Role', 'Please assign a role before approving.', 'WARNING');
       return;
     }
     this.pendingUser = user;
-    this.openModal(
-      'Confirm Approval',
-      `Approve ${user.username} as ${user.tempRole.replace('ROLE_', '')}?`,
-      'APPROVE'
-    );
+    this.openModal('Confirm Approval', `Approve ${user.username} as ${user.tempRole.replace('ROLE_', '')}?`, 'APPROVE');
   }
 
   onDeny(user: User) {
     this.pendingUser = user;
-    this.openModal(
-      'Deny User',
-      `Are you sure you want to deny ${user.username}?`,
-      'DENY'
-    );
+    this.openModal('Deny User', `Are you sure you want to deny ${user.username}?`, 'DENY');
   }
 
   initiateStatusChange(user: User, type: 'ACTIVATE' | 'DEACTIVATE') {
@@ -107,66 +140,43 @@ export class ManageUsersComponent implements OnInit {
       this.closeModal();
       return;
     }
-
     if (!this.pendingUser) return;
+
     if (this.modalType === 'APPROVE') {
       this.userService.approveUser(this.pendingUser.id, this.pendingUser.tempRole!).subscribe({
-        next: () => {
-          const index = this.users.findIndex(u => u.id === this.pendingUser?.id);
-          if (index !== -1) {
-            this.users[index].status = 'ACTIVE';
-            this.users[index].role = this.pendingUser!.tempRole ?? null;
-            this.users[index].tempRole = ''; 
-          }
-          this.closeModal();
-        },
-        error: (err) => {
-          console.error('Approval failed', err);
-          this.closeModal();
-        }
+        next: () => this.refreshSingleUser(this.pendingUser!.id, 'ACTIVE', this.pendingUser!.tempRole),
+        error: () => this.closeModal()
       });
     }     
     else if (this.modalType === 'DENY') {
       this.userService.updateUserStatus(this.pendingUser.id, 'DENIED').subscribe({
-        next: () => {
-          const index = this.users.findIndex(u => u.id === this.pendingUser?.id);
-          if (index !== -1) {
-            this.users[index].status = 'DENIED';
-          }
-          this.closeModal();
-        },
-        error: (err) => {
-          console.error('Deny failed', err);
-          this.closeModal();
-        }
+        next: () => this.refreshSingleUser(this.pendingUser!.id, 'DENIED'),
+        error: () => this.closeModal()
       });
     }     
     else if (this.modalType === 'STATUS_CHANGE') {
       const newStatus = this.actionType === 'ACTIVATE' ? 'ACTIVE' : 'INACTIVE';
       this.userService.updateUserStatus(this.pendingUser.id, newStatus).subscribe({
-        next: () => {
-          const index = this.users.findIndex(u => u.id === this.pendingUser?.id);
-          if (index !== -1) {
-            this.users[index].status = newStatus;
-          }
-          this.closeModal();
-        },
-        error: (err) => {
-          console.error('Status change failed', err);
-          this.closeModal();
-        }
+        next: () => this.refreshSingleUser(this.pendingUser!.id, newStatus),
+        error: () => this.closeModal()
       });
     }
+  }
+
+  refreshSingleUser(id: string, status: string, role?: string) {
+    const user = this.allUsers.find(u => u.id === id);
+    if (user) {
+      user.status = status;
+      if (role) user.role = role;
+      user.tempRole = '';
+    }
+    this.applyFilters();
+    this.closeModal();
   }
 
   closeModal() {
     this.showModal = false;
     this.pendingUser = null;
     this.cdr.detectChanges();
-  }
-
-  closeAndRefresh() {
-    this.closeModal();
-    this.loadUsers();
   }
 }
