@@ -7,6 +7,7 @@ import { ConsumerService } from '../../../core/services/consumer';
 import { AuthService } from '../../../core/services/auth';
 import { switchMap, finalize } from 'rxjs/operators';
 import { Router } from '@angular/router';
+import { of } from 'rxjs';
 
 declare var bootstrap: any;
 
@@ -81,23 +82,40 @@ export class MyConnectionsComponent implements OnInit {
   }
 
   loadProfileAndConnections(authUserId: string) {
-    this.consumerService.getProfile(authUserId).pipe(
-      switchMap((profile: any) => {
-        this.consumerId = profile.id;
-        return this.consumerService.getMyConnections(this.consumerId);
-      }),
-      finalize(() => {
-        this.isLoading = false;
-        this.applyFilters();
-        this.cdr.detectChanges();
-      })
-    ).subscribe({
-      next: (data: any) => {
-        this.connections = Array.isArray(data) ? data : [];
-      },
-      error: (err) => console.error(err)
-    });
-  }
+  this.consumerService.getProfile(authUserId).pipe(
+    switchMap((profile: any) => {
+      if (profile.firstName === 'New' && profile.email === 'pending@utilix.com') {
+        console.log("Skeleton profile detected. Syncing registration data...");        
+        const user = this.authService.getUserFromStorage(); 
+        const updatedProfile = {
+          ...profile,
+          firstName: user.firstName || profile.firstName,
+          lastName: user.lastName || profile.lastName,
+          phoneNumber: user.phoneNumber || profile.phoneNumber,
+          address: user.address || profile.address,
+          email: user.email || profile.email,
+          active: true
+        };
+        return this.consumerService.updateProfile(updatedProfile);
+      }
+      return of(profile);
+    }),
+    switchMap((profile: any) => {
+      this.consumerId = profile.id;
+      return this.consumerService.getMyConnections(this.consumerId);
+    }),
+    finalize(() => {
+      this.isLoading = false;
+      this.cdr.detectChanges();
+    })
+  ).subscribe({
+    next: (data: any) => {
+      this.connections = Array.isArray(data) ? data : [];
+      this.applyFilters();
+    },
+    error: (err) => console.error("Profile Sync Error:", err)
+  });
+}
 
   setStatusFilter(status: string) {
     this.selectedStatus = status;
